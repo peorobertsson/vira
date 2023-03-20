@@ -15,10 +15,8 @@
                 "-vira_url",
                 "https://jira-vira-qa.volvocars.biz", // QA Server
                 "--source",
-                "/Users/PROBERT4/Downloads/Export 2023-02-28/Conform with external imposed requirements - Stakeholder reqs.xlsx",
+                "SOLSWEP-802",
                 //                "--dry_run"
-                "--target",
-                "~/Downloads/CSP PC level requirement tracking.xlsx"
             ],
         }
     ]
