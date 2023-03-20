@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "vira_deep_copy",
+            "type": "python",
+            "request": "launch",
+            "program": "src/vira_deep_copy.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "-vira_url",
+                "https://jira-vira-qa.volvocars.biz", // QA Server
+                "--source",
+                "/Users/PROBERT4/Downloads/Export 2023-02-28/Conform with external imposed requirements - Stakeholder reqs.xlsx",
+                //                "--dry_run"
+                "--target",
+                "~/Downloads/CSP PC level requirement tracking.xlsx"
+            ],
+        }
+    ]
+}
