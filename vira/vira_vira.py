@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-# pip install jira
-
 import os
 from jira import JIRA
 from jira import JIRAError
@@ -354,7 +350,7 @@ class VIRA:
                     f'Both source issue {src_issue.short_str} and parent issue {copy_parent_issue.short_str} must be of the same type')
 
         def copy_children(src_issue, copy_parent_issue):
-            children = src_issue.children
+            children = src_issue.get_children()
             for child in children:
                 copy_child_issue = self.copy_issue(
                     child, parent_issue=copy_parent_issue)

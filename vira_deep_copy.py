@@ -39,7 +39,7 @@ SCRIPT_RELEASE_NOTES = [
 
 
 def print_children(issue, indent_str: str = ''):
-    children = issue.children
+    children = issue.get_children()
     if len(children) > 0:
         print(f'{indent_str}{issue.short_str}, has {len(children)} children')
     else:
@@ -70,12 +70,13 @@ def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
 
     # Parent (if provided) must be same issuetype as the source issue, check that we can add all sub-issue to the parent
     if parent_issue is not None:
-        if len(src_issue.children) == 0:
+        children = src_issue.get_children()
+        if len(children) == 0:
             print(
                 "Source issue has no children and parent_issue provided. Nothing will be copied. Aborting.")
             # Check that we can make copied sub-issues a parent
             # Don't have the child_issues yet, but use src_issue since it is has the same issue_type as the copy will have
-            for child in src_issue.children:
+            for child in children:
                 can_be_child, error_str = vira.can_be_child_to_parent(
                     parent_issue=parent_issue, child_issue=src_issue_key)
                 if not can_be_child:

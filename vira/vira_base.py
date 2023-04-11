@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # pip install jira
 # import pip3 install python-dotenv
 

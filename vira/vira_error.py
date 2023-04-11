@@ -1,6 +1,5 @@
 from jira import JIRAError
 
-
 class VIRAError(Exception):
     """Exception raised for generic VIRA errors.
 

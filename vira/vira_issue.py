@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-# pip install jira
-
 from jira import JIRA
 from jira import JIRAError
 
@@ -74,8 +70,7 @@ class VIRAIssue:
             return '<None>'
         return f'{BOLD}{self.fields.issuetype.name}{RESET} {self.key} "{self.fields.summary}"'
 
-    @ property
-    def children(self):
+    def get_children(self):
         """ Also gets the subtasks of Capabilities, Features, Stories and Tasks """
 
         children_issues = []

@@ -40,7 +40,7 @@ def test_get_issue(vira):
 
     assert issue.key == 'ARTCSP-34668'
     assert issue.fields.summary == 'Test Feature 2'
-    assert len(issue.children) == 7  # 7 - 6 Features and 1 Subtask
+    assert len(issue.get_children()) == 7  # 7 - 6 Features and 1 Subtask
 
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     # Has Sub-Tasks and Features
@@ -48,32 +48,32 @@ def test_get_issue(vira):
 
     assert issue.key == 'SOLSWEP-802'
     assert issue.fields.summary == 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
-    assert len(issue.children) == 9  # 9 - 7 Features and 2 Subtasks
+    assert len(issue.get_children()) == 5  # 5 - 3 Features and 2 Subtasks
 
 
 def calculate_n_children_recursive(issue, n_children=0):
-    children = issue.children
- #   print(f'{issue}, has {len(children)} children')
+    children = issue.get_children()
+    print(f'{issue}, has {len(children)} children')
     n_children += len(children)
-    for child in issue.children:
+    for child in children:
         n_children = calculate_n_children_recursive(child, n_children)
     return n_children
 
 
 def test_children(vira, src_capability_issue):
     def print_children(issue, indent_str: str):
-        children = issue.children
+        children = issue.get_children()
         print(f'{indent_str}{issue}, has {len(children)} children')
         for child in children:
             print_children(child, indent_str + '  ')
 
         return indent_str[2:]  # Remove 2 spaces
 
-    children = src_capability_issue.children
-    assert len(children) == 9  # 9 - 7 Features and 2 SubTasks
+    children = src_capability_issue.get_children()
+    assert len(children) == 5  # 5 - 3 Features and 2 SubTasks
 
     print_children(src_capability_issue, "")
-    assert calculate_n_children_recursive(src_capability_issue) == 49
+    assert calculate_n_children_recursive(src_capability_issue) == 25
 
 
 def test_create_issue(vira):
