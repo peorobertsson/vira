@@ -60,7 +60,7 @@ def calculate_n_children_recursive(issue, n_children=0):
     return n_children
 
 
-def test_children(vira, src_capability_issue):
+def test_get_children(vira, src_capability_issue):
     def print_children(issue, indent_str: str):
         children = issue.get_children()
         print(f'{indent_str}{issue}, has {len(children)} children')
