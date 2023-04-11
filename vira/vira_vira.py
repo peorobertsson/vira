@@ -10,7 +10,7 @@ from vira.vira_issue import VIRAIssue
 from vira.vira_error import VIRAError
 import os
 
-# TODO(probert4) Copy 'Status' Maybe status can be set after creation?
+# FIXME(probert4) Copy 'Status' Maybe status can be set after creation?
 # TODO(probert4) Copy 'fixVersions' Maybe fixVersions can be set after creation
 # TODO(probert4) Copy 'Remaing Estimate' and 'Original Estimate'.
 
@@ -20,53 +20,58 @@ g_logger = getViraLogger()
 class VIRA:
     """Represent a VIRA instance."""
 
-    def __init__(self):
+    def __init__(self, vira_url: str = None):
+        """ If vira_url is not provided, the VIRA_URL environment variable is used."""
         self._jira = None
+        if vira_url is None:
+            vira_url = os.environ.get('VIRA_URL')
+        assert (vira_url != None)
+        self.vira_url = vira_url
         self.dry_run = False
         self.create_comment = None
         self.replacements = None
 
-    def connect(self, *, url: str = None, user: str = None, password: str = None):
+    def connect_with_token(self,  *, token: str = None):
+        # Connects to Jira/Vira using Personal Authentication Token (PAT)
+        """ If token is not provided, the VIRA_ACCESS_TOKEN environment variable is used."""
+        if token is None:
+            token = os.environ.get('VIRA_ACCESS_TOKEN')
+        try:
+            self._jira = JIRA(server=self.vira_url, token_auth=token)
+        except JIRAError as e:
+            raise VIRAError(
+                f'Could not connect to VIRA server "{self.vira_url}" using Personal Authentication Token.', status_code=e.status_code, jira_error=e)
+
+        g_logger.info(f'Connected to {self.vira_url} using PAT')
+
+    def connect(self, *, user: str = None, password: str = None):
         """ If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to endter the URL and cridentials.
             After a sucessfull connection, the values are stored as OS environemnt variables. Next call will then not need to specify a URL and cridentials
 
-            VIRA_URL,
             VIRA_USER,
             VIRA_PASSWORD
         """
-        if url is None:
-            url = os.environ.get('VIRA_URL')
         if user is None:
             user = os.environ.get('VIRA_USER')
         if password is None:
             password = os.environ.get('VIRA_PASSWORD')
-        if url is None:
-            url = input(
-                f"Please enter URL to VIRA (default={DEFAULT_VIRA_URL}):")
-            if url is None or len(url) == 0:
-                url = DEFAULT_VIRA_URL
         if user is None:
             user = input("Please enter your VIRA username:")
         if password is None:
             password = input("Please enter your VIRA password:")
 
-        """ Connects to Jira/Vira """
+        # Connects to Jira/Vira
         try:
-            self._jira = JIRA(server=url, auth=(
-                user, password))
+            self._jira = JIRA(server=self.vira_url, auth=(user, password))
         except JIRAError as e:
             raise VIRAError(
-                f'Could not connect to VIRA server "{url}" as "{user}".', status_code=e.response.status_code, jira_error=e)
-        except ConnectionRefusedError as e:
-            raise VIRAError(
-                f'Could not connect to VIRA server "{url}" as "{user}. Connection refused')
+                f'Could not connect to VIRA server "{self.vira_url}" as "{user}".', status_code=e.status_code, jira_error=e)
 
         # Save for next time. TODO: Save this in a separate file
-        os.environ['VIRA_URL'] = url
         os.environ['VIRA_USER'] = user
         os.environ['VIRA_PASSWORD'] = password
 
-        g_logger.info(f'Connected to {url} as {user}')
+        g_logger.info(f'Connected to {self.vira_url} as {user}')
 
     def get_issue(self, issue_key: str):
         try:
@@ -91,10 +96,36 @@ class VIRA:
             src_str = src_str.replace(matching, replacement)
         return src_str
 
-    def add_child_issue_to_parent(self, *, parent_issue: VIRAIssue, child_issue: VIRAIssue):
+    def can_be_child_to_parent(self, *, parent_issue: VIRAIssue, child_issue: VIRAIssue):
+        if parent_issue is None:
+            return (True, '')
+
         if child_issue.is_feature:
             if not parent_issue.is_capability:
-                raise VIRAError(
+                return (False, f'Can only add a feature to a capability. Got parent issue {parent_issue} and child issue {child_issue}')
+            else:
+                return (True, '')
+        elif child_issue.is_story:
+            if not parent_issue.is_feature:
+                return (False, f'Can only add a Story to a Feature. Got parent issue {parent_issue} and child issue {child_issue}')
+            else:
+                return (True, '')
+        elif child_issue.is_subtask:
+            if parent_issue.is_subtask:  # Subtasks can be made child of all issue types except subtasks
+                return (False, f'Can not add a sub-task to a sub-task. Got parent issue {parent_issue} and child issue {child_issue}')
+            else:
+                return (True, '')
+        else:
+            return (False, f'Can not add {child_issue.short_str} to {parent_issue.short_str}')
+
+    def add_child_issue_to_parent(self, *, parent_issue: VIRAIssue, child_issue: VIRAIssue):
+        can_be_child, error_str = self.can_be_child_to_parent(
+            parent_issue=parent_issue, child_issue=child_issue)
+        if not can_be_child:
+            raise VIRAError(error_str)
+
+        if child_issue.is_feature:
+            assert (parent_issue.is_capability,
                     f'Can only add a feature to a capability. Got parent issue {parent_issue} and child issue {child_issue}')
             issue_dict = {
                 # customfield_13801 = Capability Name. Example 'SOLSWEP-1201'
@@ -106,8 +137,7 @@ class VIRA:
             child_issue._jira_issue.update(
                 fields={'parent': {'id': parent_issue.id}})
         elif child_issue.is_story:
-            if not parent_issue.is_feature:
-                raise VIRAError(
+            assert (parent_issue.is_feature,
                     f'Can only add a Story to a Feature. Got parent issue {parent_issue} and child issue {child_issue}')
             # PROBERT4: Working for now, but with updated VIRA/JIRA this might stop working.
             # As of January 2022, add_issues_to_epic is not supported for next-gen projects (you'll get this error: "Jira Agile Public API does not support this request").
@@ -116,9 +146,8 @@ class VIRA:
             self._jira.add_issues_to_epic(
                 parent_issue._jira_issue.id, child_issue._jira_issue.key)
         elif child_issue.is_subtask:
-            if parent_issue.is_subtask:
-                raise VIRAError(
-                    f'Can only add a sub-task to a sub-task. Got parent issue {parent_issue} and child issue {child_issue}')
+            assert (not parent_issue.is_subtask,
+                    f'Can not add a sub-task to a sub-task. Got parent issue {parent_issue} and child issue {child_issue}')
             child_issue._jira_issue.update(
                 fields={'parent': {'id': parent_issue.id}})
         else:
@@ -155,7 +184,7 @@ class VIRA:
         elif type(src_field_value).__name__ == 'Status':
             dst_field_value = {'id': src_field_value.id}
         elif type(src_field_value).__name__ == 'PropertyHolder':
-            # FIXME: Skip for now. 'progress', 'worklog', 'comment' fields
+            # TODO(probert4): Skip for now. 'progress', 'worklog', 'comment' fields. But maybe copy later?
             return None
         elif type(src_field_value).__name__ == 'IssueType':
             dst_field_value = {'id': src_field_value.id}
@@ -201,6 +230,15 @@ class VIRA:
         return None
 
     def copy_issue(self, src_issue: VIRAIssue, *, parent_issue: VIRAIssue = None) -> VIRAIssue:
+        """Copies a single issue from another. If parent_issue is supplied it will make the copy a child of the parent issue. 
+        parent_issue must be one hirarcial level up of src_issue."""
+
+        # Check that this is possible so that it will not fail after we made the copy (that can't be undone)
+        can_be_child, error_str = self.can_be_child_to_parent(
+            child_issue=src_issue, parent_issue=parent_issue)
+        if not can_be_child:
+            raise VIRAError(error_str)
+
         dst_summary = self.replace_strings(src_issue.fields.summary)
 
         if self.dry_run:
@@ -305,8 +343,8 @@ class VIRA:
         return new_issue
 
     def copy_issue_recursive(self, src_issue: VIRAIssue, *, copy_parent_issue: VIRAIssue = None) -> VIRAIssue:
-        """ Will return the top parent of the copy. i.e. will return copy_parent_issue if not None. Otherwise, will return the top parent issue of the copy"""
-        # TODO(probert4): Refactor to not use copy_<>_recursivly here
+        """Makes a deep copy of src_issue. If copy_parent_issue is provided then only sub-issues are copied and added to the copy_parent_issue.
+        Will return the top parent of the copy. i.e. will return copy_parent_issue if not None."""
 
         if copy_parent_issue is None:
             copy_parent_issue = self.copy_issue(src_issue, parent_issue=None)

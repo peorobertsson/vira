@@ -6,18 +6,15 @@ from vira import VIRAError
 from vira import VIRA
 import argparse
 import os.path
+from script_utils import ask_for_confirmation, BOLD, RESET
 
 
-
-# TODO(probert4): Add Support for Tasks (not just Stories)
-# TODO(probert4): Ask for user and password if not specified. Store in env variables so only need to ask once
-# TODO(probert4): Add progress reporting in console
+# TODO(probert4): Test Support for Tasks (not just Stories)
 # TODO(probert4): Also add links, i.e. keep the link structure in the copied structure. BIG WORK.
 # TODO(probert4): Add script to delete (atleast add [DEPRECATED]) to a whole structure
 # TODO(probert4): Make a seperate script to do shallow copy. (jira_copy)
 # TODO(probert4): Make a seperate script to do rename strings in whole structure (vira_text_replace). Don't forget: When changing summary also change Feature Name of Features
 # TODO(probert4): Make a seperate script to add/move parent (jira_add_parent)
-# TODO(probert4): Rename method and function names to camelCase
 
 # Notes
 # Capability SOLSWEP-1201 .id=11500
@@ -31,16 +28,13 @@ import os.path
 
 SCRIPT_NAME = os.path.basename(__file__)
 SCRIPT_AURTOUR = 'Per-Ola "PeO" Robertsson'
-SCRIPT_VERSION = '0.2.0'
-
-BOLD = "\033[1m"
-RESET = "\033[0m"
+SCRIPT_VERSION = '0.3.0'
 
 # Release notes
 SCRIPT_RELEASE_NOTES = [
-    ["0.1.0", "2023-02-10", "First working version"],
+    [SCRIPT_VERSION, "2023-03-20", "Initial alpha release for feedback"],
     ["0.2.0", "2023-02-11", "Refactored to use VIRA module"],
-    ["0.3.0", "2023-02-20", "Initial alpha release for feedback"]
+    ["0.1.0", "2023-02-10", "First working version"],
 ]
 
 
@@ -56,13 +50,13 @@ def print_children(issue, indent_str: str = ''):
     return indent_str[2:]  # Remove 2 spaces
 
 
-def main(vira, *, src_issue_key: str, parent_issue_key: None, recursive=True):
+def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
 
     try:
         src_issue = vira.get_issue(src_issue_key)
     except VIRAError as e:
         print(
-            f"Could not get issue {src_issue_key}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")  # TODO(probert4) add e.details
+            f"Could not get issue {src_issue_key}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")
         exit(1)
 
     parent_issue = None
@@ -74,22 +68,24 @@ def main(vira, *, src_issue_key: str, parent_issue_key: None, recursive=True):
                 f"Could not get issue {parent_issue_key}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")
             exit(1)
 
-    if recursive:
-        if parent_issue_key is None:
-            print(f'Will deep copy issue {src_issue.short_str}')
-        else:
+    # Parent (if provided) must be same issuetype as the source issue, check that we can add all sub-issue to the parent
+    if parent_issue is not None:
+        if len(src_issue.children) == 0:
             print(
-                f'Will deep copy sub-issues of {src_issue.short_str} to {parent_issue.short_str}')
+                "Source issue has no children and parent_issue provided. Nothing will be copied. Aborting.")
+            # Check that we can make copied sub-issues a parent
+            # Don't have the child_issues yet, but use src_issue since it is has the same issue_type as the copy will have
+            for child in src_issue.children:
+                can_be_child, error_str = vira.can_be_child_to_parent(
+                    parent_issue=parent_issue, child_issue=src_issue_key)
+                if not can_be_child:
+                    print(f'{error_str}. Aborting.')
+                    exit(1)
 
-        # print list of all isses to be copied
-        print_children(src_issue)
+        print(
+            f'Will deep copy child issues of {src_issue.short_str} and will add them as children to {parent_issue.short_str}')
     else:
-        # Non recursive copy. Parent (if provided) must be one hirarcical level
-        log_str = f'Will copy issue {src_issue.short_str}'
-        if parent_issue is not None:
-            log_str += f' and will add it as child to {parent_issue.short_str}'
-
-        print(log_str)
+        print(f'Will deep copy {src_issue.short_str}')
 
     replacements = vira.get_replacements()
     if len(replacements) > 0:
@@ -99,17 +95,10 @@ def main(vira, *, src_issue_key: str, parent_issue_key: None, recursive=True):
     else:
         print(f'Will not do any text replacements')
 
-    if g_args.dry_run:
-        print(
-            f'{BOLD}Note:{RESET} Will only do a dry-run of the operations. No issues will be created.')
-        vira.set_dry_run(True)
     ask_for_confirmation()
 
-    if recursive:
-        copy_issue = vira.copy_issue_recursive(
-            src_issue, copy_parent_issue=parent_issue)
-    else:
-        copy_issue = vira.copy_issue(src_issue, parent_issue=parent_issue)
+    copy_issue = vira.copy_issue_recursive(
+        src_issue, parent_issue=parent_issue)
 
     print("Summary:")
     if copy_issue is not None:
@@ -118,17 +107,6 @@ def main(vira, *, src_issue_key: str, parent_issue_key: None, recursive=True):
         print('No issues created')
 
     return
-
-
-def ask_for_confirmation():
-    while True:
-        user_input = input("Do you want to continue? (yes/no) ")
-        if user_input.lower() == "yes":
-            break
-        elif user_input.lower() == "no":
-            exit(0)
-        else:
-            print("Please enter 'yes' or 'no'.")
 
 
 if __name__ == "__main__":
@@ -143,16 +121,12 @@ if __name__ == "__main__":
                         help="Replaces the <capability> string of the template issues with this text. Tip: Use the name of the capability")
     parser.add_argument('-sm', '--sm_replace_text',
                         help="Replaces the <SM> string of the template issues with this text. Tip: Use the name of a Specific Module (node) that is part of the capability. Example: HP, HI, EthSw, SGA, VIU")
-    parser.add_argument('-shallow', '--shallow', action='store_true',
-                        help="Only do a shallow copy. If specified only the --src_issue will be copied, not it sub issues. If --parent_issue is specified the copy will be added as a child. --parent_issue needs to be a heriarchy level up from the --src_issue")
     parser.add_argument('-u', '--user',
                         help="Your VIRA user, i.e Your CDSID. If not provided you will be prompted to enter")
     parser.add_argument('-pw', '--password',
                         help="Your VIRA password. If not provided you will be prompted to enter")
-    parser.add_argument(
-        '--vira_url', default='https://jira-vira.volvocars.biz', help="VIRA URL. If not specified the standard VIRA URL will be used")
-    parser.add_argument('--dry_run', action='store_true',
-                        help="Don't perform the creation. Just output the result.")
+    parser.add_argument('--vira_url', default='https://jira-vira.volvocars.biz',
+                        help="VIRA URL. If not specified the standard VIRA URL will be used")
 
     # Parse the arguments
     g_args = parser.parse_args()
@@ -182,4 +156,4 @@ if __name__ == "__main__":
         f"This issue was created by {SCRIPT_NAME} {SCRIPT_VERSION}")
 
     main(vira, src_issue_key=g_args.src_issue,
-         parent_issue_key=g_args.parent_issue, recursive=not g_args.shallow)
+         parent_issue_key=g_args.parent_issue)

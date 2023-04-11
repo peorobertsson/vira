@@ -8,7 +8,7 @@ VIRA_PROJECT_KEY = 'ARTCSP'
 @pytest.fixture
 def vira(correct_environment_variables_set):
     vira = VIRA()
-    vira.connect()
+    vira.connect_with_token()
     return vira
 
 
@@ -40,7 +40,7 @@ def test_get_issue(vira):
 
     assert issue.key == 'ARTCSP-34668'
     assert issue.fields.summary == 'Test Feature 2'
-    assert len(issue.children) == 7 # 7 - 6 Features and 1 Subtask
+    assert len(issue.children) == 7  # 7 - 6 Features and 1 Subtask
 
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     # Has Sub-Tasks and Features
