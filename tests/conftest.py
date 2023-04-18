@@ -1,11 +1,4 @@
-import pytest
-
-# from fixtures import no_environment_variables_set
-# from fixtures import correct_environment_variables_set
-
 from dotenv import dotenv_values
-from vira import VIRAError
-from vira import VIRA
 import pytest
 import os
 

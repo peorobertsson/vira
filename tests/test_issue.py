@@ -13,23 +13,9 @@ def vira(correct_environment_variables_set, scope="session"):
 
 
 @pytest.fixture
-def feature_issue(vira):
-    # ARTCSP-34668 - Feature: 'Test Feature 2'
-    issue = vira.get_issue("ARTCSP-34668")
-    return issue
-
-
-@pytest.fixture
 def src_capability_issue(vira):
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     issue = vira.get_issue("SOLSWEP-802")
-    return issue
-
-
-@pytest.fixture
-def parent_capability_issue(vira):
-    # SOLSWEP-615 - Capability: 'TSC gen I: Product Capability "Provide Core System Application Execution"'
-    issue = vira.get_issue("SOLSWEP-615")
     return issue
 
 

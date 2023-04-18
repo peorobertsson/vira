@@ -1,7 +1,4 @@
-from vira import VIRA
 from vira import getViraLogger
-import logging
-import pytest
 
 
 def test_default_logging():

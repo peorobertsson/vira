@@ -1,7 +1,7 @@
 from vira import VIRA
 from vira import VIRAError
 import pytest
-import os
+
 from tests.fixtures import (
     VIRA_URL,
     VIRA_TEST_URL,
