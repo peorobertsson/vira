@@ -148,8 +148,10 @@ class VIRA:
             raise VIRAError(error_str)
 
         if child_issue.is_feature:
-            assert parent_issue.is_capability, f"Can only add a feature to a capability. Got parent issue {parent_issue} and child issue {child_issue}",
-            
+            assert (
+                parent_issue.is_capability
+            ), f"Can only add a feature to a capability. Got parent issue {parent_issue} and child issue {child_issue}"
+
             issue_dict = {
                 # customfield_13801 = Capability Name. Example 'SOLSWEP-1201'
                 "customfield_13801": parent_issue.key,
@@ -159,7 +161,9 @@ class VIRA:
             child_issue._jira_issue.update(fields=issue_dict)
             child_issue._jira_issue.update(fields={"parent": {"id": parent_issue.id}})
         elif child_issue.is_story:
-            assert parent_issue.is_feature, f"Can only add a Story to a Feature. Got parent issue {parent_issue} and child issue {child_issue}",
+            assert (
+                parent_issue.is_feature
+            ), f"Can only add a Story to a Feature. Got parent issue {parent_issue} and child issue {child_issue}"
 
             # PROBERT4: Working for now, but with updated VIRA/JIRA this might stop working.
             # As of January 2022, add_issues_to_epic is not supported for next-gen projects (you'll get this error: "Jira Agile Public API does not support this request").
@@ -169,7 +173,9 @@ class VIRA:
                 parent_issue._jira_issue.id, child_issue._jira_issue.key
             )
         elif child_issue.is_subtask:
-            assert not parent_issue.is_subtask, f"Can not add a sub-task to a sub-task. Got parent issue {parent_issue} and child issue {child_issue}"
+            assert (
+                not parent_issue.is_subtask
+            ), f"Can not add a sub-task to a sub-task. Got parent issue {parent_issue} and child issue {child_issue}"
             child_issue._jira_issue.update(fields={"parent": {"id": parent_issue.id}})
         else:
             raise VIRAError(

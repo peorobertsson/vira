@@ -50,7 +50,8 @@ def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
 
     print(log_str)
 
-    script_utils.ask_for_confirmation()
+    if not g_args.force:
+        script_utils.ask_for_confirmation()
 
     copy_issue = vira.copy_issue(src_issue, parent_issue=parent_issue)
 

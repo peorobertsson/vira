@@ -2,7 +2,7 @@ from vira import VIRA
 from vira import VIRAError
 import pytest
 
-from tests.fixtures import (
+from tests.cridentials import (
     VIRA_URL,
     VIRA_TEST_URL,
     VIRA_TEST_USER,
