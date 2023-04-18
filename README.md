@@ -5,4 +5,4 @@ Contains both a Python package and utility scripts.
 
 https://confluence.volvocars.biz/display/ARTCSP/VIRA+Deep+Copy
 
-![Tests](https://github.com/mCodingLLC/SlapThatLikeButton-TestingStarterProject/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/peorobertsson/vira/actions/workflows/tests.yml/badge.svg)
