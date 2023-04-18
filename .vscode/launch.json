@@ -8,15 +8,33 @@
             "name": "vira_deep_copy",
             "type": "python",
             "request": "launch",
-            "program": "src/vira_deep_copy.py",
+            "program": "vira_deep_copy.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "-vira_url",
+                "--vira_url",
                 "https://jira-vira-qa.volvocars.biz", // QA Server
-                "--source",
                 "SOLSWEP-802",
-                //                "--dry_run"
+                "-pat",
+                "MTcxNTI4MjE4OTcwOk+m24DrMSL+3Qyt30L+22vK7sp7",
+                //                "--version",
+            ],
+        },
+        {
+            "name": "vira_copy to parent",
+            "type": "python",
+            "request": "launch",
+            "program": "vira_copy.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--vira_url",
+                "https://jira-vira-qa.volvocars.biz", // QA Server
+                "SOLSWEP-802",
+                "-p",
+                "SOLSWEP-123",
+                "-pat",
+                "MTcxNTI4MjE4OTcwOk+m24DrMSL+3Qyt30L+22vK7sp7"
             ],
         }
     ]

@@ -4,7 +4,7 @@ from vira import VIRAError
 from vira import VIRA
 import argparse
 import os.path
-from script_utils import ask_for_confirmation
+import script_utils
 
 SCRIPT_NAME = os.path.basename(__file__)
 SCRIPT_AURTOUR = 'Per-Ola "PeO" Robertsson'
@@ -36,10 +36,11 @@ def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
 
     # Check that we can make the copied issue a parent
     # Don't have the child_issue yet, but use src_issue since it is has the same issue_type aas the copy will have
-    can_be_child, error_str = vira.can_be_child_to_parent(
-        parent_issue=parent_issue, child_issue=src_issue_key)
+    can_be_child, _ = vira.can_be_child_to_parent(
+        parent_issue=parent_issue, child_issue=src_issue)
     if not can_be_child:
-        print(f'{error_str}. Aborting.')
+        print(
+            f"Can't add a copy of {src_issue} as parent to {parent_issue}. Aborting.")
         exit(1)
 
     # Non recursive copy. Parent (if provided) must be one hirarcical level
@@ -49,7 +50,7 @@ def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
 
     print(log_str)
 
-    ask_for_confirmation()
+    script_utils.ask_for_confirmation()
 
     copy_issue = vira.copy_issue(src_issue, parent_issue=parent_issue)
 
@@ -69,29 +70,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=f'{SCRIPT_NAME} {SCRIPT_VERSION}. Deep Copies a VIRA issue. Created by {SCRIPT_AURTOUR}.\nRelease notes:\n{SCRIPT_RELEASE_NOTES}')
 
-    parser.add_argument('-s', '--src_issue', required=True,
+    parser.add_argument('src_issue',
                         help="The issue to copy from")
     parser.add_argument('-p', '--parent_issue',
                         help="If specified the copy will be added to the parent. Need to be a one level up issuetype as the --src_issue aragument. If not specified the copy will not have a parent")
-    parser.add_argument('-u', '--user',
-                        help="Your VIRA user, i.e Your CDSID. If not provided you will be prompted to enter")
-    parser.add_argument('-pw', '--password',
-                        help="Your VIRA password. If not provided you will be prompted to enter")
-    parser.add_argument(
-        '--vira_url', default='https://jira-vira.volvocars.biz', help="VIRA URL. If not specified the standard VIRA URL will be used")
+
+    script_utils.add_common_arguments(parser)
 
     # Parse the arguments
     g_args = parser.parse_args()
 
-    vira = VIRA()
+    vira = VIRA(g_args.vira_url)
 
     # Connect to Jira
     try:
-        vira.connect(url=g_args.vira_url, user=g_args.user,
-                     password=g_args.password)
+        if g_args.token is not None:
+            vira.connect_with_token(token=g_args.token)
+        else:
+            vira.connect(user=g_args.user, password=g_args.password)
     except VIRAError as e:
         print(
-            f"Could not connect to VIRA {g_args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")
+            f"Could not connect to VIRA {g_args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}")
         exit(1)
 
     vira.set_create_comment(

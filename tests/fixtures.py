@@ -6,6 +6,7 @@ import os
 
 test_cridentials = dotenv_values('.env.test_cridentials')
 
+VIRA_URL = "https://jira-vira.volvocars.biz"
 VIRA_TEST_URL = "https://jira-vira-qa.volvocars.biz"  # QA environment
 VIRA_TEST_USER = test_cridentials['VIRA_TEST_USER']
 VIRA_TEST_USER_PASSWORD = test_cridentials['VIRA_TEST_USER_PASSWORD']

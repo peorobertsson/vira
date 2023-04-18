@@ -47,6 +47,7 @@ def main(vira, *, issue_key: str, new_parent_issue_key: str):
     vira.add_child_issue_to_parent(parent_issue=new_parent_issue,
                                    child_issue=issue)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=f'{SCRIPT_NAME} {SCRIPT_VERSION}. Deep Copies a VIRA issue. Created by {SCRIPT_AURTOUR}.\nRelease notes:\n{SCRIPT_RELEASE_NOTES}')
@@ -63,12 +64,11 @@ if __name__ == "__main__":
     # Parse the arguments
     g_args = parser.parse_args()
 
-    vira = VIRA()
+    vira = VIRA(g_args.vira_url)
 
     # Connect to Jira
     try:
-        vira.connect(url=g_args.vira_url, user=g_args.user,
-                     password=g_args.password)
+        vira.connect(user=g_args.user, password=g_args.password)
     except VIRAError as e:
         print(
             f"Could not connect to VIRA {g_args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")
@@ -93,12 +93,11 @@ if __name__ == "__main__":
     parser.add_argument('--vira_url', default='https://jira-vira.volvocars.biz',
                         help="VIRA URL. If not specified the standard VIRA URL will be used")
 
-    vira = VIRA()
+    vira = VIRA(g_args.vira_url)
 
     # Connect to Jira
     try:
-        vira.connect(url=g_args.vira_url, user=g_args.user,
-                     password=g_args.password)
+        vira.connect(user=g_args.user, password=g_args.password)
     except VIRAError as e:
         print(
             f"Could not connect to VIRA {g_args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}")
