@@ -1,6 +1,6 @@
 from jira import JIRA
 from jira import JIRAError
-from vira.vira_base import getViraLogger, DEFAULT_VIRA_URL
+from vira.vira_base import getViraLogger, DEFAULT_VIRA_URL, get_os_identifier
 from vira.vira_issue import VIRAIssue
 from vira.vira_error import VIRAError
 import os
@@ -40,11 +40,13 @@ class VIRA:
                 jira_error=e,
             )
 
-        g_logger.info(f"Connected to {self.vira_url} using PAT")
+        g_logger.info(
+            f"Connected to {self.vira_url} using PAT. OS:{get_os_identifier()}"
+        )
 
     def connect(self, *, user: str = None, password: str = None):
-        """If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to endter the URL and cridentials.
-        After a sucessfull connection, the values are stored as OS environemnt variables. Next call will then not need to specify a URL and cridentials
+        """If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to endter the URL and credentials.
+        After a sucessfull connection, the values are stored as OS environemnt variables. Next call will then not need to specify a URL and credentials
 
         VIRA_USER,
         VIRA_PASSWORD
@@ -72,7 +74,9 @@ class VIRA:
         os.environ["VIRA_USER"] = user
         os.environ["VIRA_PASSWORD"] = password
 
-        g_logger.info(f"Connected to {self.vira_url} as {user}")
+        g_logger.info(
+            f"Connected to {self.vira_url} as {user}. OS:{get_os_identifier()}"
+        )
 
     def get_issue(self, issue_key: str):
         try:

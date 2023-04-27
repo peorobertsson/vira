@@ -4,6 +4,7 @@
 import logging
 from logging.handlers import SysLogHandler
 import sys
+import platform
 
 BOLD = '\033[1m'
 RESET = '\033[0m'
@@ -14,6 +15,8 @@ DEFAULT_VIRA_URL = 'https://jira-vira.volvocars.biz'
 PAPERTRAIL_HOST = 'logs5.papertrailapp.com'
 PAPERTRAIL_PORT = 14852
 
+def get_os_identifier():
+    return f'{platform.system()} {platform.release()}'
 
 def getViraLoggerInit():
     logger = logging.getLogger('vira')
