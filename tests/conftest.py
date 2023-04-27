@@ -21,7 +21,7 @@ def no_environment_variables_set():
 
 
 @pytest.fixture
-def correct_environment_variables_set():
+def correct_test_environment_variables_set():
     os.environ["VIRA_URL"] = VIRA_TEST_URL
     os.environ["VIRA_USER"] = VIRA_TEST_USER
     os.environ["VIRA_PASSWORD"] = VIRA_TEST_USER_PASSWORD

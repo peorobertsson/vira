@@ -2,10 +2,7 @@ import os
 import pytest
 
 from tests.cridentials import (
-    VIRA_URL,
     VIRA_TEST_URL,
-    VIRA_TEST_USER,
-    VIRA_TEST_USER_PASSWORD,
     VIRA_TEST_ACCESS_TOKEN,
 )
 

@@ -1,14 +1,17 @@
 from vira import VIRA
 import pytest
+from tests.cridentials import (
+    VIRA_TEST_URL,
+    VIRA_TEST_ACCESS_TOKEN,
+)
 
 VIRA_PROJECT_KEY = "ARTCSP"
 
 
-@pytest.mark.usefixtures("correct_environment_variables_set")
 @pytest.fixture
-def vira(correct_environment_variables_set, scope="session"):
-    vira = VIRA()
-    vira.connect_with_token()
+def vira(correct_test_environment_variables_set, scope="session"):
+    vira = VIRA(VIRA_TEST_URL)
+    vira.connect_with_token(token=VIRA_TEST_ACCESS_TOKEN)
     return vira
 
 

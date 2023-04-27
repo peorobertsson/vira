@@ -13,24 +13,26 @@ from tests.cridentials import (
 
 @pytest.mark.usefixtures("no_environment_variables_set")
 def test_connection_with_cridentials(no_environment_variables_set):
-    vira = VIRA(VIRA_URL)
+    vira = VIRA(VIRA_TEST_URL)
     vira.connect(user=VIRA_TEST_USER, password=VIRA_TEST_USER_PASSWORD)
 
 
 @pytest.mark.usefixtures("no_environment_variables_set")
 def test_connection_with_token(no_environment_variables_set):
-    vira = VIRA(VIRA_URL)
+    vira = VIRA(VIRA_TEST_URL)
     vira.connect_with_token(token=VIRA_TEST_ACCESS_TOKEN)
 
 
-@pytest.mark.usefixtures("correct_environment_variables_set")
-def test_connection_with_cridentials_with_env_vars(correct_environment_variables_set):
-    vira = VIRA(VIRA_URL)
+@pytest.mark.usefixtures("correct_test_environment_variables_set")
+def test_connection_with_cridentials_with_env_vars(
+    correct_test_environment_variables_set,
+):
+    vira = VIRA(VIRA_TEST_URL)
     vira.connect()
 
 
-@pytest.mark.usefixtures("correct_environment_variables_set")
-def test_connection_with_token_using_env_vars(correct_environment_variables_set):
+@pytest.mark.usefixtures("correct_test_environment_variables_set")
+def test_connection_with_token_using_env_vars(correct_test_environment_variables_set):
     vira = VIRA()
     vira.connect_with_token()
 
@@ -49,10 +51,20 @@ def test_connection_with_console_input(no_environment_variables_set, monkeypatch
     vira.connect()
 
 
-@pytest.mark.usefixtures("correct_environment_variables_set")
-def test_failed_connection(correct_environment_variables_set):
+@pytest.mark.usefixtures("correct_test_environment_variables_set")
+def test_failed_connection(correct_test_environment_variables_set):
     vira = VIRA(VIRA_TEST_URL)
     with pytest.raises(VIRAError) as e_info:
         # Even with the correct environment variables set, parameters take precidence
-        vira.connect(user="NonExistingUser", password="WrongPassword")
+        vira.connect(user="VIRA_TEST_USER", password="WrongPassword")
+    assert e_info.value.status_code == 401
+
+    with pytest.raises(VIRAError) as e_info:
+        # Even with the correct environment variables set, parameters take precidence
+        vira.connect(user="WrongUser", password=VIRA_TEST_USER_PASSWORD)
+    assert e_info.value.status_code == 401
+
+    with pytest.raises(VIRAError) as e_info:
+        # Even with the correct environment variables set, parameters take precidence
+        vira.connect_with_token(token = VIRA_TEST_ACCESS_TOKEN + 'Wrong')
     assert e_info.value.status_code == 401
