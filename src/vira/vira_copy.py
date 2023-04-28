@@ -4,7 +4,7 @@ from vira import VIRAError
 from vira import VIRA
 import argparse
 import os.path
-import vira_script_utils
+import vira.vira_script_utils as vira_script_utils
 
 SCRIPT_NAME = os.path.basename(__file__)
 SCRIPT_AURTOUR = 'Per-Ola "PeO" Robertsson'

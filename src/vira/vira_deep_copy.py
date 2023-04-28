@@ -6,7 +6,7 @@ from vira import VIRAError
 from vira import VIRA
 import argparse
 import os.path
-import vira_script_utils
+import vira.vira_script_utils as vira_script_utils
 
 # TODO(probert4): Test Support for Tasks (not just Stories)
 # TODO(probert4): Also add links, i.e. keep the link structure in the copied structure. BIG WORK.
