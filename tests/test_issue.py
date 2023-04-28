@@ -40,7 +40,7 @@ def test_get_issue(vira):
         issue.fields.summary
         == 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     )
-    assert len(issue.get_children()) == 5  # 5 - 3 Features and 2 Subtasks
+    assert len(issue.get_children()) == 8  # 8 - 6 Features and 2 Subtasks
 
 
 def calculate_n_children_recursive(issue, n_children=0):
@@ -62,7 +62,7 @@ def test_get_children(vira, src_capability_issue):
         return indent_str[2:]  # Remove 2 spaces
 
     children = src_capability_issue.get_children()
-    assert len(children) == 5  # 5 - 3 Features and 2 SubTasks
+    assert len(children) == 8  # 8 - 6 Features and 2 SubTasks
 
     print_children(src_capability_issue, "")
     assert calculate_n_children_recursive(src_capability_issue) == 27

@@ -1,6 +1,3 @@
-from jira import JIRA
-from jira import JIRAError
-
 from vira.vira_base import BOLD, RESET
 from vira.vira_error import VIRAError
 from vira.vira_base import getViraLogger

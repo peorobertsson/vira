@@ -1,6 +1,6 @@
 from jira import JIRA
 from jira import JIRAError
-from vira.vira_base import getViraLogger, DEFAULT_VIRA_URL, get_os_identifier
+from vira.vira_base import getViraLogger, get_os_identifier
 from vira.vira_issue import VIRAIssue
 from vira.vira_error import VIRAError
 import os
@@ -40,12 +40,28 @@ class VIRA:
                 jira_error=e,
             )
 
+        # To test that the authentication work, do some communication with the server. Done by doing a search
+        try:
+            self._jira.search_issues("issue=ANYTHNG")
+        except JIRAError as e:
+            # 400 is OK since the search was invalid, but the authentication was OK
+            if e.status_code == 400:
+                ...
+            else:
+                raise VIRAError(
+                f'Could not connect to VIRA server "{self.vira_url}" using Personal Authentication Token.',
+                status_code=e.status_code,
+                jira_error=e,
+            )
+            
+
         g_logger.info(
             f"Connected to {self.vira_url} using PAT. OS:{get_os_identifier()}"
         )
 
     def connect(self, *, user: str = None, password: str = None):
-        """If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to endter the URL and credentials.
+        """If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to enter the
+        URL and credentials.
         After a sucessfull connection, the values are stored as OS environemnt variables. Next call will then not need to specify a URL and credentials
 
         VIRA_USER,
@@ -170,7 +186,8 @@ class VIRA:
             ), f"Can only add a Story to a Feature. Got parent issue {parent_issue} and child issue {child_issue}"
 
             # PROBERT4: Working for now, but with updated VIRA/JIRA this might stop working.
-            # As of January 2022, add_issues_to_epic is not supported for next-gen projects (you'll get this error: "Jira Agile Public API does not support this request").
+            # As of January 2022, add_issues_to_epic is not supported for next-gen projects
+            # (you'll get this error: "Jira Agile Public API does not support this request").
             # https://ecosystem.atlassian.net/browse/ACJIRA-1634 explains how to do it now
 
             self._jira.add_issues_to_epic(

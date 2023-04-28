@@ -6,7 +6,8 @@ from vira import VIRAError
 from vira import VIRA
 import argparse
 import os.path
-import script_utils
+import vira_script_utils
+import click
 
 
 # TODO(probert4): Test Support for Tasks (not just Stories)
@@ -53,71 +54,7 @@ def print_children(issue, indent_str: str = ""):
     return indent_str[2:]  # Remove 2 spaces
 
 
-def main(vira, *, src_issue_key: str, parent_issue_key: str = None):
-    try:
-        src_issue = vira.get_issue(src_issue_key)
-    except VIRAError as e:
-        print(
-            f"Could not get issue {src_issue_key}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}"
-        )
-        exit(1)
-
-    parent_issue = None
-    if parent_issue_key not in [None, ""]:
-        try:
-            parent_issue = vira.get_issue(parent_issue_key)
-        except VIRAError as e:
-            print(
-                f"Could not get issue {parent_issue_key}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}"
-            )
-            exit(1)
-
-    # Parent (if provided) must be same issuetype as the source issue, check that we can add all sub-issue to the parent
-    if parent_issue is not None:
-        children = src_issue.get_children()
-        if len(children) == 0:
-            print(
-                "Source issue has no children and parent_issue provided. Nothing will be copied. Aborting."
-            )
-            # Check that we can make copied sub-issues a parent
-            # Don't have the child_issues yet, but use src_issue since it is has the same issue_type as the copy will have
-            for child in children:
-                can_be_child, error_str = vira.can_be_child_to_parent(
-                    parent_issue=parent_issue, child_issue=src_issue_key
-                )
-                if not can_be_child:
-                    print(f"{error_str}. Aborting.")
-                    exit(1)
-
-        print(
-            f"Will deep copy child issues of {src_issue.short_str} and will add them as children to {parent_issue.short_str}"
-        )
-    else:
-        print(f"Will deep copy {src_issue.short_str}")
-
-    replacements = vira.get_replacements()
-    if len(replacements) > 0:
-        print(f"Will use the following text replacements")
-        for replacement in vira.get_replacements():
-            print(f'"{replacement[0]}" -> "{replacement[1]}"')
-    else:
-        print(f"Will not do any text replacements")
-
-    if not g_args.force:
-        script_utils.ask_for_confirmation()
-
-    copy_issue = vira.copy_issue_recursive(src_issue, copy_parent_issue=parent_issue)
-
-    print("Summary:")
-    if copy_issue is not None:
-        print_children(copy_issue)
-    else:
-        print("No issues created")
-
-    return
-
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description=f"{SCRIPT_NAME} {SCRIPT_VERSION}. Deep Copies a VIRA issue. Created by {SCRIPT_AUTHOUR}"
     )
@@ -145,39 +82,103 @@ if __name__ == "__main__":
         help="Detailed version information. Exits after printing",
     )
 
-    script_utils.add_common_arguments(parser)
+    vira_script_utils.add_common_arguments(parser)
 
     # Parse the arguments
-    g_args = parser.parse_args()
+    args = parser.parse_args()
 
-    if g_args.version:
-        script_utils.print_version(
+    if args.version:
+        vira_script_utils.print_version(
             SCRIPT_NAME, SCRIPT_AUTHOUR, SCRIPT_VERSION, SCRIPT_RELEASE_NOTES
         )
         parser.exit()
 
     replacements = [["[TEMPLATE, COPY ME] ", ""], ["[Template, COPY ME] ", ""]]
-    if g_args.capability_replace_text is not None:
-        replacements.append(["<capability>", g_args.capability_replace_text])
-        replacements.append(["<sSOLCSP Capability>", g_args.capability_replace_text])
-    if g_args.sm_replace_text is not None:
-        replacements.append(["<SM>", g_args.sm_replace_text])
+    if args.capability_replace_text is not None:
+        replacements.append(["<capability>", args.capability_replace_text])
+        replacements.append(["<sSOLCSP Capability>", args.capability_replace_text])
+    if args.sm_replace_text is not None:
+        replacements.append(["<SM>", args.sm_replace_text])
 
-    vira = VIRA(g_args.vira_url)
+    vira = VIRA(args.vira_url)
 
     # Connect to Jira
     try:
-        if g_args.token is not None:
-            vira.connect_with_token(token=g_args.token)
+        if args.token is not None:
+            vira.connect_with_token(token=args.token)
         else:
-            vira.connect(user=g_args.user, password=g_args.password)
+            vira.connect(user=args.user, password=args.password)
     except VIRAError as e:
         print(
-            f"Could not connect to VIRA {g_args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}"
+            f"Could not connect to VIRA {args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}"
         )
         exit(1)
 
     vira.set_replacements(replacements)
     vira.set_create_comment(f"This issue was created by {SCRIPT_NAME} {SCRIPT_VERSION}")
 
-    main(vira, src_issue_key=g_args.src_issue, parent_issue_key=g_args.parent_issue)
+    try:
+        src_issue = vira.get_issue(args.src_issue)
+    except VIRAError as e:
+        print(
+            f"Could not get issue {args.src_issue}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}"
+        )
+        exit(1)
+
+    parent_issue = None
+    if args.parent_issue not in [None, ""]:
+        try:
+            parent_issue = vira.get_issue(args.parent_issue)
+        except VIRAError as e:
+            print(
+                f"Could not get issue {args.parent_issue}. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}"
+            )
+            exit(1)
+
+    # Parent (if provided) must be same issuetype as the source issue, check that we can add all sub-issue to the parent
+    if parent_issue is not None:
+        children = src_issue.get_children()
+        if len(children) == 0:
+            print(
+                "Source issue has no children and parent_issue provided. Nothing will be copied. Aborting."
+            )
+            # Check that we can make copied sub-issues a parent
+            # Don't have the child_issues yet, but use src_issue since it is has the same issue_type as the copy will have
+            for child in children:
+                can_be_child, error_str = vira.can_be_child_to_parent(
+                    parent_issue=parent_issue, child_issue=src_issue
+                )
+                if not can_be_child:
+                    print(f"{error_str}. Aborting.")
+                    exit(1)
+
+        print(
+            f"Will deep copy child issues of {src_issue.short_str} and will add them as children to {parent_issue.short_str}"
+        )
+    else:
+        print(f"Will deep copy {src_issue.short_str}")
+
+    replacements = vira.get_replacements()
+    if len(replacements) > 0:
+        print("Will use the following text replacements")
+        for replacement in vira.get_replacements():
+            print(f'"{replacement[0]}" -> "{replacement[1]}"')
+    else:
+        print("Will not do any text replacements")
+
+    if not args.force:
+        vira_script_utils.ask_for_confirmation()
+
+    copy_issue = vira.copy_issue_recursive(src_issue, copy_parent_issue=parent_issue)
+
+    print("Summary:")
+    if copy_issue is not None:
+        print_children(copy_issue)
+    else:
+        print("No issues created")
+
+    return
+
+
+if __name__ == "__main__":
+    main()

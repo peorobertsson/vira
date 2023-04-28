@@ -11,6 +11,33 @@ from tests.credentials import (
 )
 
 
+# Production VIRA tests
+@pytest.mark.usefixtures("no_environment_variables_set")
+def test_connection_to_production_with_cridentials(no_environment_variables_set):
+    vira = VIRA(VIRA_URL)
+    vira.connect(user=VIRA_TEST_USER, password=VIRA_TEST_USER_PASSWORD)
+
+
+@pytest.mark.usefixtures("no_environment_variables_set")
+def test_connection_to_production_using_console_input(
+    no_environment_variables_set, monkeypatch
+):
+    inputs = iter([VIRA_TEST_USER, VIRA_TEST_USER_PASSWORD])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    vira = VIRA(VIRA_URL)
+    vira.connect()
+
+
+@pytest.mark.usefixtures("correct_test_environment_variables_set")
+def test_connection_to_production_with_credentials_using_env_vars(
+    correct_test_environment_variables_set,
+):
+    vira = VIRA(VIRA_URL)
+    vira.connect()
+
+
+# QA Environment tests
+@pytest.mark.skip("QA Environment does not support USER / PW credentials")
 @pytest.mark.usefixtures("no_environment_variables_set")
 def test_connection_with_credentials(no_environment_variables_set):
     vira = VIRA(VIRA_TEST_URL)
@@ -24,31 +51,9 @@ def test_connection_with_token(no_environment_variables_set):
 
 
 @pytest.mark.usefixtures("correct_test_environment_variables_set")
-def test_connection_with_credentials_with_env_vars(
-    correct_test_environment_variables_set,
-):
-    vira = VIRA(VIRA_TEST_URL)
-    vira.connect()
-
-
-@pytest.mark.usefixtures("correct_test_environment_variables_set")
 def test_connection_with_token_using_env_vars(correct_test_environment_variables_set):
     vira = VIRA()
     vira.connect_with_token()
-
-
-@pytest.mark.usefixtures("no_environment_variables_set")
-def test_connection_to_production(no_environment_variables_set):
-    vira = VIRA(VIRA_URL)
-    vira.connect(user=VIRA_TEST_USER, password=VIRA_TEST_USER_PASSWORD)
-
-
-@pytest.mark.usefixtures("no_environment_variables_set")
-def test_connection_with_console_input(no_environment_variables_set, monkeypatch):
-    inputs = iter([VIRA_TEST_USER, VIRA_TEST_USER_PASSWORD])
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    vira = VIRA(VIRA_URL)
-    vira.connect()
 
 
 @pytest.mark.usefixtures("correct_test_environment_variables_set")
