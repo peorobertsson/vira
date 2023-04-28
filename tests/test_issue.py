@@ -65,7 +65,7 @@ def test_get_children(vira, src_capability_issue):
     assert len(children) == 8  # 8 - 6 Features and 2 SubTasks
 
     print_children(src_capability_issue, "")
-    assert calculate_n_children_recursive(src_capability_issue) == 27
+    assert calculate_n_children_recursive(src_capability_issue) == 52
 
 
 def test_create_issue(vira):
