@@ -12,6 +12,7 @@ VIRA_PROJECT_KEY = "ARTCSP"
 def vira(correct_test_environment_variables_set, scope="session"):
     vira = VIRA(VIRA_TEST_URL)
     vira.connect_with_token(token=VIRA_TEST_ACCESS_TOKEN)
+    vira.set_create_comment("Created by unittest")
     return vira
 
 
@@ -29,7 +30,7 @@ def test_get_issue(vira):
 
     assert issue.key == "ARTCSP-34668"
     assert issue.fields.summary == "Test Feature 2"
-    assert len(issue.get_children()) == 8  # 7 - 7 Features and 1 Subtask
+    assert len(issue.get_children()) == 8  # 8 - 7 Features and 1 Subtask
 
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     # Has Sub-Tasks and Features

@@ -49,11 +49,10 @@ class VIRA:
                 ...
             else:
                 raise VIRAError(
-                f'Could not connect to VIRA server "{self.vira_url}" using Personal Authentication Token.',
-                status_code=e.status_code,
-                jira_error=e,
-            )
-            
+                    f'Could not connect to VIRA server "{self.vira_url}" using Personal Authentication Token.',
+                    status_code=e.status_code,
+                    jira_error=e,
+                )
 
         g_logger.info(
             f"Connected to {self.vira_url} using PAT. OS:{get_os_identifier()}"

@@ -40,7 +40,7 @@ def add_common_arguments(parser: argparse.ArgumentParser):
         help="Your Personal Acccess Token. If not provided --user and --password will be used",
     )
     parser.add_argument(
-        "--vira_url",
+        "-url", "--vira_url",
         default="https://jira-vira.volvocars.biz",
         help="VIRA URL. If not specified the standard VIRA URL will be used",
     )

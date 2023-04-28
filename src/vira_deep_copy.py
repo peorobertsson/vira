@@ -7,13 +7,12 @@ from vira import VIRA
 import argparse
 import os.path
 import vira_script_utils
-import click
-
 
 # TODO(probert4): Test Support for Tasks (not just Stories)
 # TODO(probert4): Also add links, i.e. keep the link structure in the copied structure. BIG WORK.
 # TODO(probert4): Add script to delete (atleast add [DEPRECATED]) to a whole structure
 # TODO(probert4): Make a seperate script to do rename strings in whole structure (vira_text_replace). Don't forget: When changing summary also change Feature Name of Features
+# TODO(probert4): add search_issue(str) : VIRAIssue[]
 
 # Notes
 # Capability SOLSWEP-1201 .id=11500
