@@ -16,8 +16,7 @@
                 "https://jira-vira-qa.volvocars.biz", // QA Server
                 "SOLSWEP-802",
                 "-pat",
-                "MTcxNTI4MjE4OTcwOk+m24DrMSL+3Qyt30L+22vK7sp7",
-                //                "--version",
+                "MTcxNTI4MjE4OTcwOk+m24DrMSL+3Qyt30L+22vK7sp7"
             ],
         },
         {

@@ -1,0 +1,57 @@
+name: Bug report
+description: Create a report to help us improve
+
+
+body:
+- type: textarea
+  id: summary
+  attributes:
+    label: Bug summary
+    description: "A clear and concise description of what the bug is."
+  validations:
+    required: true
+- type: checkboxes
+  id: exisitng-issue
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue already exists for the bug you encountered.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: checkboxes
+  id: operating-systems
+  attributes:
+    label: Which operating systems have you used?
+    description: You may select more than one.
+    options:
+    - label: Linux
+    - label: macOS
+    - label: Windows
+- type: textarea
+  id: repro
+  attributes:
+    label: Reproduction steps
+    description: "Example of how you trigger this bug. Please walk us through it step by step."
+    value: |
+      # 1. Given this command
+      vira_deep_copy -pat SOLSWEP-1301
+      # 2. I get the following output
+      ...
+    render: python
+  validations:
+    required: true
+- type: textarea
+  id: expected
+  attributes:
+    label: Expected behaviour
+    description: "What you expected to happen."
+  validations:
+    required: true
+- type: textarea
+  id: additional
+  attributes:
+    label: Additional Context
+    description: "Any additional information or dependencies that can help diagnose the problem. Also provide the vira_deep_copy --version output"
+    placeholder: "..."
+  validations:
+    required: false
