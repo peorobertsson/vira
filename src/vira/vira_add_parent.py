@@ -16,7 +16,7 @@ SCRIPT_RELEASE_NOTES = [
 ]
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
         description=f"{SCRIPT_NAME} {SCRIPT_VERSION}. Add or moves a VIRA issue to annother parent. Created by {SCRIPT_AURTOUR}.\nRelease notes:\n{SCRIPT_RELEASE_NOTES}"
     )
@@ -36,10 +36,13 @@ def main():
 
     # Connect to Jira
     try:
-        vira.connect(user=args.user, password=args.password)
+        if args.token is not None:
+            vira.connect_with_token(token=args.token)
+        else:
+            vira.connect(user=args.user, password=args.password)
     except VIRAError as e:
         print(
-            f"Could not connect to VIRA {args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}\n{e.jira_error.response.content}"
+            f"Could not connect to VIRA {args.vira_url}'. Aborting. Details:\n{e.status_code} {e.message}"
         )
         exit(1)
 
@@ -74,6 +77,8 @@ def main():
         vira_script_utils.ask_for_confirmation()
 
     vira.add_child_issue_to_parent(parent_issue=parent_issue, child_issue=issue)
+
+    return 0
 
 
 if __name__ == "__main__":

@@ -30,7 +30,7 @@ def test_get_issue(vira):
 
     assert issue.key == "ARTCSP-34668"
     assert issue.fields.summary == "Test Feature 2"
-    assert len(issue.get_children()) == 8  # 8 - 7 Features and 1 Subtask
+    assert len(issue.get_children()) == 12  # 12 - 11 Features and 1 Subtask
 
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     # Has Sub-Tasks and Features
@@ -41,7 +41,7 @@ def test_get_issue(vira):
         issue.fields.summary
         == 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     )
-    assert len(issue.get_children()) == 8  # 8 - 6 Features and 2 Subtasks
+    assert len(issue.get_children()) == 17  # 8 - 6 Features and 2 Subtasks
 
 
 def calculate_n_children_recursive(issue, n_children=0):
@@ -63,10 +63,10 @@ def test_get_children(vira, src_capability_issue):
         return indent_str[2:]  # Remove 2 spaces
 
     children = src_capability_issue.get_children()
-    assert len(children) == 8  # 8 - 6 Features and 2 SubTasks
+    assert len(children) == 17  # 8 - 6 Features and 2 SubTasks
 
     print_children(src_capability_issue, "")
-    assert calculate_n_children_recursive(src_capability_issue) == 52
+    assert calculate_n_children_recursive(src_capability_issue) == 115
 
 
 def test_create_issue(vira):

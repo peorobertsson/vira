@@ -53,7 +53,7 @@ def print_children(issue, indent_str: str = ""):
     return indent_str[2:]  # Remove 2 spaces
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
         description=f"{SCRIPT_NAME} {SCRIPT_VERSION}. Deep Copies a VIRA issue. Created by {SCRIPT_AUTHOUR}"
     )
@@ -176,7 +176,7 @@ def main():
     else:
         print("No issues created")
 
-    return
+    return 0
 
 
 if __name__ == "__main__":

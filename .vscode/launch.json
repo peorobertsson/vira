@@ -21,7 +21,7 @@
             ],
         },
         {
-            "name": "vira_copy to parent",
+            "name": "vira_copy",
             "type": "python",
             "request": "launch",
             "program": "vira_copy.py",

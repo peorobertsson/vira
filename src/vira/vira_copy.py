@@ -16,7 +16,7 @@ SCRIPT_RELEASE_NOTES = [
 ]
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(
         description=f"{SCRIPT_NAME} {SCRIPT_VERSION}. Deep Copies a VIRA issue. Created by {SCRIPT_AURTOUR}.\nRelease notes:\n{SCRIPT_RELEASE_NOTES}"
     )
@@ -97,7 +97,7 @@ def main():
     else:
         print("No issues created")
 
-    return
+    return 0
 
 
 if __name__ == "__main__":
