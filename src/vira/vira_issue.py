@@ -68,7 +68,7 @@ class VIRAIssue:
             return "<None>"
         return f'{BOLD}{self.fields.issuetype.name}{RESET} {self.key} "{self.fields.summary}"'
 
-    def get_children(self):
+    def get_children(self) -> list:
         """Also gets the subtasks of Capabilities, Features, Stories and Tasks"""
 
         children_issues = []

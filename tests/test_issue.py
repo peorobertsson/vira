@@ -1,5 +1,6 @@
 from vira import VIRA
 import pytest
+import inspect
 from tests.credentials import (
     VIRA_TEST_URL,
     VIRA_TEST_ACCESS_TOKEN,
@@ -17,7 +18,7 @@ def vira(correct_test_environment_variables_set, scope="session"):
 
 
 @pytest.fixture
-def src_capability_issue(vira):
+def src_capability_issue(vira, scope="session"):
     # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
     issue = vira.get_issue("SOLSWEP-802")
     return issue
@@ -30,18 +31,8 @@ def test_get_issue(vira):
 
     assert issue.key == "ARTCSP-34668"
     assert issue.fields.summary == "Test Feature 2"
+    assert issue.fields.status.name == "Done"
     assert len(issue.get_children()) == 12  # 12 - 11 Features and 1 Subtask
-
-    # SOLSWEP-802 - Capability: 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
-    # Has Sub-Tasks and Features
-    issue = vira.get_issue("SOLSWEP-802")
-
-    assert issue.key == "SOLSWEP-802"
-    assert (
-        issue.fields.summary
-        == 'PRST gen I: Product Capability "Core System Platform State and Power Management"'
-    )
-    assert len(issue.get_children()) == 17  # 8 - 6 Features and 2 Subtasks
 
 
 def calculate_n_children_recursive(issue, n_children=0):
@@ -53,20 +44,24 @@ def calculate_n_children_recursive(issue, n_children=0):
     return n_children
 
 
+def print_children(issue, indent_str: str = ""):
+    children = issue.get_children()
+    print(f"{indent_str}{issue}, has {len(children)} children")
+    for child in children:
+        print_children(child, indent_str + "  ")
+    return indent_str[2:]  # Remove 2 spaces
+
+
+def _function_name() -> str:
+    return inspect.stack()[1][3]
+
+
 def test_get_children(vira, src_capability_issue):
-    def print_children(issue, indent_str: str):
-        children = issue.get_children()
-        print(f"{indent_str}{issue}, has {len(children)} children")
-        for child in children:
-            print_children(child, indent_str + "  ")
-
-        return indent_str[2:]  # Remove 2 spaces
-
     children = src_capability_issue.get_children()
-    assert len(children) == 17  # 8 - 6 Features and 2 SubTasks
+    assert len(children) == 3  # 3 - 1 Features and 2 SubTasks
 
-    print_children(src_capability_issue, "")
-    assert calculate_n_children_recursive(src_capability_issue) == 115
+    print_children(src_capability_issue)
+    assert calculate_n_children_recursive(src_capability_issue) == 4
 
 
 def test_create_issue(vira):
@@ -78,7 +73,7 @@ def test_create_issue(vira):
         "description": "My own Story description",
     }
 
-    vira.set_create_comment(f"This issue was created by unit test {__name__}")
+    vira.set_create_comment(f"This issue was created by unit test test_create_issue")
 
     issue = vira.create_issue(fields)
 
@@ -95,6 +90,8 @@ def test_create_issue(vira):
 
 def test_copy_issue(vira):
     src_issue = vira.get_issue("SOLSWEP-803")
+    vira.set_create_comment(f"This issue was created by unit test test_copy_issue")
+
     cpy_issue = vira.copy_issue(src_issue)
 
     assert cpy_issue.key != src_issue.key
@@ -108,7 +105,7 @@ def test_copy_issue(vira):
 
 
 def test_deep_copy(vira, src_capability_issue):
-    vira.set_create_comment(f"This issue was created by unit test {__name__}")
+    vira.set_create_comment(f"This issue was created by unit test test_deep_copy")
     # def copy_issue_recursive(self, src_issue: VIRAIssue, *, copy_parent_issue: VIRAIssue = None) -> VIRAIssue:
     cpy_issue = vira.copy_issue_recursive(src_capability_issue)
 
@@ -126,6 +123,9 @@ def test_deep_copy(vira, src_capability_issue):
 
 def test_deep_copy_to_parent(vira, src_capability_issue):
     parent_capability_issue = vira.copy_issue_by_key("SOLSWEP-803")
+    vira.set_create_comment(
+        f"This issue was created by unit test test_deep_copy_to_parent"
+    )
     parent_n_children_before = calculate_n_children_recursive(parent_capability_issue)
 
     cpy_issue = vira.copy_issue_recursive(

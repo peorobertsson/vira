@@ -315,7 +315,7 @@ class VIRA:
             if parent_issue is not None:
                 log_str += f" and added it as child to {parent_issue.short_str}"
             g_logger.debug(log_str, extra={"console_only": True})
-            return
+            return None
 
         # TODO(probert4) Check these
         read_only_fields = [
