@@ -176,9 +176,9 @@ class VIRA:
                 "customfield_13801": parent_issue.key,
                 # customfield_16500 = Capability ID. Example '3467866' (.id of SOLSWEP-1201)
                 #            'customfield_16500': parent_issue.id
+                "parent": {"id": parent_issue.id},
             }
             child_issue._jira_issue.update(fields=issue_dict)
-            child_issue._jira_issue.update(fields={"parent": {"id": parent_issue.id}})
         elif child_issue.is_story:
             assert (
                 parent_issue.is_feature
