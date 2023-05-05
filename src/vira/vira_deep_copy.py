@@ -62,7 +62,8 @@ def main() -> int:
     parser.add_argument(
         "-p",
         "--parent_issue",
-        help="If specified only sub issues of --src_issue will be copied to this issue. Need to be of same VIRA issuetype as the --src_issue aragument. If not specified a complete deep copy of --src_issue will be done.",
+        help="If specified only sub issues of --src_issue will be copied to this issue. Need to be of \
+        same VIRA issuetype as the --src_issue aragument. If not specified a complete deep copy of --src_issue will be done.",
     )
     parser.add_argument(
         "-c",
@@ -72,7 +73,8 @@ def main() -> int:
     parser.add_argument(
         "-sm",
         "--sm_replace_text",
-        help="Replaces the <SM> string of the template issues with this text. Tip: Use the name of a Specific Module (node) that is part of the capability. Example: HP, HI, EthSw, SGA, VIU",
+        help="Replaces the <SM> string of the template issues with this text. \
+            Tip: Use the name of a Specific Module (node) that is part of the capability. Example: HP, HI, EthSw, SGA, VIU",
     )
     parser.add_argument(
         "-version",

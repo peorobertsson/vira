@@ -73,7 +73,7 @@ def test_create_issue(vira):
         "description": "My own Story description",
     }
 
-    vira.set_create_comment(f"This issue was created by unit test test_create_issue")
+    vira.set_create_comment("This issue was created by unit test test_create_issue")
 
     issue = vira.create_issue(fields)
 
@@ -90,7 +90,7 @@ def test_create_issue(vira):
 
 def test_copy_issue(vira):
     src_issue = vira.get_issue("SOLSWEP-803")
-    vira.set_create_comment(f"This issue was created by unit test test_copy_issue")
+    vira.set_create_comment("This issue was created by unit test test_copy_issue")
 
     cpy_issue = vira.copy_issue(src_issue)
 
@@ -105,7 +105,7 @@ def test_copy_issue(vira):
 
 
 def test_deep_copy(vira, src_capability_issue):
-    vira.set_create_comment(f"This issue was created by unit test test_deep_copy")
+    vira.set_create_comment("This issue was created by unit test test_deep_copy")
     # def copy_issue_recursive(self, src_issue: VIRAIssue, *, copy_parent_issue: VIRAIssue = None) -> VIRAIssue:
     cpy_issue = vira.copy_issue_recursive(src_capability_issue)
 
@@ -124,7 +124,7 @@ def test_deep_copy(vira, src_capability_issue):
 def test_deep_copy_to_parent(vira, src_capability_issue):
     parent_capability_issue = vira.copy_issue_by_key("SOLSWEP-803")
     vira.set_create_comment(
-        f"This issue was created by unit test test_deep_copy_to_parent"
+        "This issue was created by unit test test_deep_copy_to_parent"
     )
     parent_n_children_before = calculate_n_children_recursive(parent_capability_issue)
 

@@ -25,7 +25,8 @@ def main() -> int:
     parser.add_argument(
         "-p",
         "--parent_issue",
-        help="If specified the copy will be added to the parent. Need to be a one level up issuetype as the --src_issue aragument. If not specified the copy will not have a parent",
+        help="If specified the copy will be added to the parent. Need to be a one level up issuetype as the --src_issue aragument. \
+            If not specified the copy will not have a parent",
     )
 
     vira_script_utils.add_common_arguments(parser)

@@ -15,18 +15,17 @@ g_logger = getViraLogger()
 class VIRA:
     """Represent a VIRA instance."""
 
-    def __init__(self, vira_url: str = None):
+    def __init__(self, vira_url: str | None = None):
         """If vira_url is not provided, the VIRA_URL environment variable is used."""
-        self._jira = None
+        # self._jira = None
         if vira_url is None:
             vira_url = os.environ.get("VIRA_URL")
         assert vira_url is not None
         self.vira_url = vira_url
-        self.dry_run = False
         self.create_comment = None
         self.replacements = None
 
-    def connect_with_token(self, *, token: str = None):
+    def connect_with_token(self, *, token: str | None = None):
         # Connects to Jira/Vira using Personal Authentication Token (PAT)
         """If token is not provided, the VIRA_ACCESS_TOKEN environment variable is used."""
         if token is None:
@@ -58,7 +57,7 @@ class VIRA:
             f"Connected to {self.vira_url} using PAT. OS:{get_os_identifier()}"
         )
 
-    def connect(self, *, user: str = None, password: str = None):
+    def connect(self, *, user: str | None = None, password: str | None = None):
         """If a parameter is not provided, the corresponding OS environment variable is used. If these are not found the user is prompted to enter the
         URL and credentials.
         After a sucessfull connection, the values are stored as OS environemnt variables. Next call will then not need to specify a URL and credentials
@@ -120,7 +119,7 @@ class VIRA:
         return src_str
 
     def can_be_child_to_parent(
-        self, *, parent_issue: VIRAIssue, child_issue: VIRAIssue
+        self, *, parent_issue: VIRAIssue | None, child_issue: VIRAIssue
     ):
         if parent_issue is None:
             return (True, "")
@@ -259,35 +258,31 @@ class VIRA:
 
         return dst_field_value
 
-    def set_dry_run(self, dry_run=True):
-        self.dry_run = dry_run
-
     def set_create_comment(self, comment):
         self.create_comment = comment
 
-    def create_issue(self, issue_dict: dict):
-        if not self.dry_run:
-            try:
-                new_jira_issue = self._jira.create_issue(fields=issue_dict)
-            except JIRAError as e:
-                g_logger.error(
-                    f"Could not create issue. Details:\n{e.response.status_code} {e.response.content}",
-                    extra={"no_console": True},
-                )
-                raise VIRAError(
-                    "Could not create issue",
-                    status_code=e.response.status_code,
-                    jira_error=e,
-                )
-            if self.create_comment is not None:
-                self._jira.add_comment(new_jira_issue, self.create_comment)
-            new_issue = VIRAIssue(new_jira_issue, self._jira)
-            g_logger.debug(f"Created issue {new_issue.short_str}")
-            return new_issue
-        g_logger.debug(f"Simulated the creation of issue {issue_dict}")
-        return None
+    def create_issue(self, issue_dict: dict) -> VIRAIssue:
+        try:
+            new_jira_issue = self._jira.create_issue(fields=issue_dict)
+        except JIRAError as e:
+            g_logger.error(
+                f"Could not create issue. Details:\n{e.response.status_code} {e.response.content}",
+                extra={"no_console": True},
+            )
+            raise VIRAError(
+                "Could not create issue",
+                status_code=e.response.status_code,
+                jira_error=e,
+            )
+        if self.create_comment is not None:
+            self._jira.add_comment(new_jira_issue, self.create_comment)
+        new_issue = VIRAIssue(new_jira_issue, self._jira)
+        g_logger.debug(f"Created issue {new_issue.short_str}")
+        return new_issue
 
-    def copy_issue_by_key(self, src_issue_key: str, *, parent_issue_key: str = None):
+    def copy_issue_by_key(
+        self, src_issue_key: str, *, parent_issue_key: str | None = None
+    ):
         src_issue = self.get_issue(src_issue_key)
         parent_issue = None
         if parent_issue_key is not None:
@@ -296,7 +291,7 @@ class VIRA:
         return self.copy_issue(src_issue=src_issue, parent_issue=parent_issue)
 
     def copy_issue(
-        self, src_issue: VIRAIssue, *, parent_issue: VIRAIssue = None
+        self, src_issue: VIRAIssue, *, parent_issue: VIRAIssue | None = None
     ) -> VIRAIssue:
         """Copies a single issue from another. If parent_issue is supplied it will make the copy a child of the parent issue.
         parent_issue must be one hirarcial level up of src_issue."""
@@ -309,13 +304,6 @@ class VIRA:
             raise VIRAError(error_str)
 
         dst_summary = self.replace_strings(src_issue.fields.summary)
-
-        if self.dry_run:
-            log_str = f'Dry run: Would have copied {src_issue.indent_str}{src_issue.short_str} but changed the summary to "{dst_summary}"'
-            if parent_issue is not None:
-                log_str += f" and added it as child to {parent_issue.short_str}"
-            g_logger.debug(log_str, extra={"console_only": True})
-            return None
 
         # TODO(probert4) Check these
         read_only_fields = [
@@ -412,7 +400,7 @@ class VIRA:
         return new_issue
 
     def copy_issue_recursive(
-        self, src_issue: VIRAIssue, *, copy_parent_issue: VIRAIssue = None
+        self, src_issue: VIRAIssue, *, copy_parent_issue: VIRAIssue | None = None
     ) -> VIRAIssue:
         """Makes a deep copy of src_issue. If copy_parent_issue is provided then only sub-issues are copied and added to the copy_parent_issue.
         Will return the top parent of the copy. i.e. will return copy_parent_issue if not None.

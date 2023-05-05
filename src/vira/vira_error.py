@@ -1,5 +1,6 @@
 from jira import JIRAError
 
+
 class VIRAError(Exception):
     """Exception raised for generic VIRA errors.
 
@@ -10,7 +11,11 @@ class VIRAError(Exception):
     """
 
     def __init__(
-        self, message: str, *, status_code: int = None, jira_error: JIRAError = None
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        jira_error: JIRAError | None = None
     ):
         self.message = message
         self.status_code = status_code
