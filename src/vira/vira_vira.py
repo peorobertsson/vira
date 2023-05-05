@@ -1,3 +1,4 @@
+import getpass
 from jira import JIRA
 from jira import JIRAError
 from vira.vira_base import getViraLogger, get_os_identifier
@@ -72,7 +73,7 @@ class VIRA:
         if user is None:
             user = input("Please enter your VIRA username:")
         if password is None:
-            password = input("Please enter your VIRA password:")
+            password = getpass.getpass(prompt="Please enter your VIRA password:")
 
         # Connects to Jira/Vira
         try:

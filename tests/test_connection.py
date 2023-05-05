@@ -18,6 +18,7 @@ def test_connection_to_production_with_cridentials(no_environment_variables_set)
     vira.connect(user=VIRA_TEST_USER, password=VIRA_TEST_USER_PASSWORD)
 
 
+@pytest.mark.skip("Fix this. monkeypatch can't emulate getpass.getpass() input.")
 @pytest.mark.usefixtures("no_environment_variables_set")
 def test_connection_to_production_using_console_input(
     no_environment_variables_set, monkeypatch

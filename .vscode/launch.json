@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "vira_deep_copy",
+            "name": "vira_deep_copy (QA)",
             "type": "python",
             "request": "launch",
-            "program": "vira_deep_copy.py",
+            "program": "src/vira/vira_deep_copy.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
@@ -20,10 +20,10 @@
             ],
         },
         {
-            "name": "vira_copy",
+            "name": "vira_copy (QA)",
             "type": "python",
             "request": "launch",
-            "program": "vira_copy.py",
+            "program": "src/vira/vira_copy.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
