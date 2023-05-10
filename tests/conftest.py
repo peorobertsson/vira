@@ -2,16 +2,17 @@ from dotenv import load_dotenv
 import pytest
 import os
 
-import os
-from dotenv import load_dotenv
-
 load_dotenv()  # set environemnt variables from .env file (if it exists)
 
 VIRA_URL = "https://jira-vira.volvocars.biz"  # Production environment
 VIRA_TEST_URL = "https://jira-vira-qa.volvocars.biz"  # QA environment
-VIRA_TEST_USER = os.environ["VIRA_TEST_USER"]
-VIRA_TEST_USER_PASSWORD = os.environ["VIRA_TEST_USER_PASSWORD"]
-VIRA_TEST_ACCESS_TOKEN = os.environ["VIRA_TEST_ACCESS_TOKEN"]
+VIRA_TEST_USER = os.getenv("VIRA_TEST_USER", "VIRA_TEST_USER_NOT_SET")
+VIRA_TEST_USER_PASSWORD = os.getenv(
+    "VIRA_TEST_USER_PASSWORD", "VIRA_TEST_USER_PASSWORD_NOT_SET"
+)
+VIRA_TEST_ACCESS_TOKEN = os.getenv(
+    "VIRA_TEST_ACCESS_TOKEN", "VIRA_TEST_ACCESS_TOKEN_NOT_SET"
+)
 
 print(
     f"1. VIRA_TEST_USER={VIRA_TEST_USER}, VIRA_TEST_USER_PASSWORD={VIRA_TEST_USER_PASSWORD}, VIRA_TEST_ACCESS_TOKEN={VIRA_TEST_ACCESS_TOKEN}"
