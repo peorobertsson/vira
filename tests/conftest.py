@@ -5,7 +5,7 @@ import os
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  # set environemnt variables from .env file (if it exists)
 
 VIRA_URL = "https://jira-vira.volvocars.biz"  # Production environment
 VIRA_TEST_URL = "https://jira-vira-qa.volvocars.biz"  # QA environment

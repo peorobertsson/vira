@@ -4,6 +4,11 @@ on:
   - push
   - pull_request
 
+env:
+  VIRA_TEST_USER: ${{ secrets.VIRA_TEST_USER }}
+  VIRA_TEST_USER_PASSWORD: ${{ secrets.VIRA_TEST_USER_PASSWORD }}
+  VIRA_TEST_ACCESS_TOKEN: ${{ secrets.VIRA_TEST_ACCESS_TOKEN }}
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
