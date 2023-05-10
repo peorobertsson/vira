@@ -13,6 +13,10 @@ VIRA_TEST_USER = os.environ["VIRA_TEST_USER"]
 VIRA_TEST_USER_PASSWORD = os.environ["VIRA_TEST_USER_PASSWORD"]
 VIRA_TEST_ACCESS_TOKEN = os.environ["VIRA_TEST_ACCESS_TOKEN"]
 
+print(
+    f"1. VIRA_TEST_USER={VIRA_TEST_USER}, VIRA_TEST_USER_PASSWORD={VIRA_TEST_USER_PASSWORD}, VIRA_TEST_ACCESS_TOKEN={VIRA_TEST_ACCESS_TOKEN}"
+)
+
 
 @pytest.fixture
 def no_environment_variables_set():
@@ -26,7 +30,10 @@ def no_environment_variables_set():
 
 @pytest.fixture
 def correct_test_environment_variables_set():
+    print(
+        f"2. VIRA_TEST_USER={VIRA_TEST_USER}, VIRA_TEST_USER_PASSWORD={VIRA_TEST_USER_PASSWORD}, VIRA_TEST_ACCESS_TOKEN={VIRA_TEST_ACCESS_TOKEN}"
+    )
     os.environ["VIRA_URL"] = VIRA_TEST_URL
-    os.environ["VIRA_USER"] = VIRA_TEST_USER  # type: ignore
-    os.environ["VIRA_PASSWORD"] = VIRA_TEST_USER_PASSWORD  # type: ignore
-    os.environ["VIRA_ACCESS_TOKEN"] = VIRA_TEST_ACCESS_TOKEN  # type: ignore
+    os.environ["VIRA_USER"] = VIRA_TEST_USER
+    os.environ["VIRA_PASSWORD"] = VIRA_TEST_USER_PASSWORD
+    os.environ["VIRA_ACCESS_TOKEN"] = VIRA_TEST_ACCESS_TOKEN
