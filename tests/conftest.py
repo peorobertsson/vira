@@ -5,6 +5,10 @@ import os
 load_dotenv()  # set environemnt variables from .env file (if it exists)
 
 VIRA_URL = "https://jira-vira.volvocars.biz"  # Production environment
+VIRA_USER = os.getenv("VIRA_USER", "VIRA_USER_NOT_SET")
+VIRA_USER_PASSWORD = os.getenv("VIRA_USER_PASSWORD", "VIRA_USER_PASSWORD_NOT_SET")
+VIRA_ACCESS_TOKEN = os.getenv("VIRA_ACCESS_TOKEN", "VIRA_ACCESS_TOKEN_NOT_SET")
+
 VIRA_TEST_URL = "https://jira-vira-qa.volvocars.biz"  # QA environment
 VIRA_TEST_USER = os.getenv("VIRA_TEST_USER", "VIRA_TEST_USER_NOT_SET")
 VIRA_TEST_USER_PASSWORD = os.getenv(
@@ -12,10 +16,6 @@ VIRA_TEST_USER_PASSWORD = os.getenv(
 )
 VIRA_TEST_ACCESS_TOKEN = os.getenv(
     "VIRA_TEST_ACCESS_TOKEN", "VIRA_TEST_ACCESS_TOKEN_NOT_SET"
-)
-
-print(
-    f"1. VIRA_TEST_USER={VIRA_TEST_USER}, VIRA_TEST_USER_PASSWORD={VIRA_TEST_USER_PASSWORD}, VIRA_TEST_ACCESS_TOKEN={VIRA_TEST_ACCESS_TOKEN}"
 )
 
 
@@ -31,9 +31,6 @@ def no_environment_variables_set():
 
 @pytest.fixture
 def correct_test_environment_variables_set():
-    print(
-        f"2. VIRA_TEST_USER={VIRA_TEST_USER}, VIRA_TEST_USER_PASSWORD={VIRA_TEST_USER_PASSWORD}, VIRA_TEST_ACCESS_TOKEN={VIRA_TEST_ACCESS_TOKEN}"
-    )
     os.environ["VIRA_URL"] = VIRA_TEST_URL
     os.environ["VIRA_USER"] = VIRA_TEST_USER
     os.environ["VIRA_PASSWORD"] = VIRA_TEST_USER_PASSWORD

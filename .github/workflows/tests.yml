@@ -5,6 +5,9 @@ on:
   - pull_request
 
 env:
+  VIRA_USER: ${{ secrets.VIRA_USER }}
+  VIRA_USER_PASSWORD: ${{ secrets.VIRA_USER_PASSWORD }}
+  VIRA_ACCESS_TOKEN: ${{ secrets.VIRA_ACCESS_TOKEN }}
   VIRA_TEST_USER: ${{ secrets.VIRA_TEST_USER }}
   VIRA_TEST_USER_PASSWORD: ${{ secrets.VIRA_TEST_USER_PASSWORD }}
   VIRA_TEST_ACCESS_TOKEN: ${{ secrets.VIRA_TEST_ACCESS_TOKEN }}

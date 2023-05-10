@@ -10,7 +10,7 @@ VIRA_PROJECT_KEY = "ARTCSP"
 
 
 @pytest.fixture
-def vira(correct_test_environment_variables_set, scope="session"):
+def vira(scope="session"):
     vira = VIRA(VIRA_TEST_URL)
     vira.connect_with_token(token=VIRA_TEST_ACCESS_TOKEN)
     vira.set_create_comment("Created by unittest")

@@ -31,6 +31,8 @@ class VIRA:
         """If token is not provided, the VIRA_ACCESS_TOKEN environment variable is used."""
         if token is None:
             token = os.environ.get("VIRA_ACCESS_TOKEN")
+        if token is None:
+            token = input("Please enter your access token:")
         try:
             self._jira = JIRA(server=self.vira_url, token_auth=token)
         except JIRAError as e:
