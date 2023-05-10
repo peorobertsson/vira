@@ -1,7 +1,7 @@
 from vira import VIRA
 import pytest
 import inspect
-from tests.credentials import (
+from tests.conftest import (
     VIRA_TEST_URL,
     VIRA_TEST_ACCESS_TOKEN,
 )

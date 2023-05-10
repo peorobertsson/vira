@@ -2,7 +2,7 @@ from vira import VIRA
 from vira import VIRAError
 import pytest
 
-from tests.credentials import (
+from tests.conftest import (
     VIRA_URL,
     VIRA_TEST_URL,
     VIRA_TEST_USER,
@@ -72,5 +72,5 @@ def test_failed_connection(correct_test_environment_variables_set):
 
     with pytest.raises(VIRAError) as e_info:
         # Even with the correct environment variables set, parameters take precidence
-        vira.connect_with_token(token=VIRA_TEST_ACCESS_TOKEN + "Wrong")
+        vira.connect_with_token(token="WrongPersonalAccessToken")
     assert e_info.value.status_code == 401
