@@ -26,13 +26,16 @@ def src_capability_issue(vira, scope="session"):
 
 def test_get_issue(vira):
     # def get_issue(self, issue_key : str) -> VIRAIssue
-    # ARTCSP-34668 - Feature: Test Feature 2'
+    # ARTCSP-34668 - Feature: [SA] PRST "State and Power Management gen I" (approved)'
     issue = vira.get_issue("ARTCSP-34668")
 
     assert issue.key == "ARTCSP-34668"
-    assert issue.fields.summary == "Test Feature 2"
+    assert (
+        issue.fields.summary
+        == '[SA] PRST "State and Power Management gen I" (approved)'
+    )
     assert issue.fields.status.name == "Done"
-    assert len(issue.get_children()) == 12  # 12 - 11 Features and 1 Subtask
+    assert len(issue.get_children()) == 8  # 8 - 8 Features and 0 Subtask
 
 
 def calculate_n_children_recursive(issue, n_children=0):
@@ -58,7 +61,7 @@ def _function_name() -> str:
 
 def test_get_children(vira, src_capability_issue):
     children = src_capability_issue.get_children()
-    assert len(children) == 3  # 3 - 1 Features and 2 SubTasks
+    assert len(children) == 0  # 0 - 0 Features and 0 SubTasks
 
     print_children(src_capability_issue)
     assert calculate_n_children_recursive(src_capability_issue) == 4
